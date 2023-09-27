@@ -1,0 +1,11 @@
+---
+title: "p8105_hw2_xz3173"
+author: "Xue Zhang"
+date: "2023-09-27"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
