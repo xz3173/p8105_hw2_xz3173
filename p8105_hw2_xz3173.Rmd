@@ -7,6 +7,7 @@ output: github_document
 
 ```{r setup, include=FALSE}
 library(tidyverse)
+library(dplyr)
 ```
 
 # Problem 1
@@ -36,9 +37,20 @@ pols_month_df =
       10 ~ "Oct", 
       11 ~ "Nov", 
       12 ~ "Dec")
-  )
+  ) |>
+  
+  mutate(
+    president = ifelse(grepl("1", prez_dem, ignore.case = TRUE), "dem",
+                       ifelse(grepl("1", prez_gop, ignore.case = TRUE), "gop", NA))) |>
+  select(-prez_dem, -prez_gop, -day)
 ```
  
+ 
+
+
+
+
+
 
 
 ```{r}
