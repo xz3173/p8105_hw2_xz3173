@@ -6,6 +6,49 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
 ```
 
+# Problem 1
+
+
+Import the pols-month.csv, unemployment.csv, and snp.csv.
+
+
+```{r}
+pols_month_df = 
+  read_csv("data/pols-month.csv")
+
+names(pols_month_df)
+
+pols_month_df = 
+  janitor::clean_names(pols_month_df)
+
+names(pols_month_df)
+```
+
+
+```{r}
+unemployment_df = 
+  read_csv("data/unemployment.csv")
+
+names(unemployment_df)
+
+unemployment_df = 
+  janitor::clean_names(unemployment_df)
+
+names(unemployment_df)
+```
+
+
+```{r}
+snp_df = 
+  read_csv("data/snp.csv")
+
+names(snp_df)
+
+snp_df = 
+  janitor::clean_names(snp_df)
+
+names(snp_df)
+```
