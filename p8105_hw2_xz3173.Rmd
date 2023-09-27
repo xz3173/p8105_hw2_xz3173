@@ -7,7 +7,6 @@ output: github_document
 
 ```{r setup, include=FALSE}
 library(tidyverse)
-library(dplyr)
 ```
 
 # Problem 1
@@ -20,7 +19,7 @@ Import the pols-month.csv, unemployment.csv, and snp.csv.
 pols_month_df = 
   read_csv("data/pols-month.csv") |>
   janitor::clean_names() |>
-  separate(mon, into = c("year", "month", "day"), sep = "-", convert = TRUE, remove = FALSE) |>
+  separate(mon, into = c("year", "month", "day"), sep = "-", convert = TRUE) |>
   
   mutate(
     month = case_match(
@@ -46,7 +45,31 @@ pols_month_df =
 ```
  
  
-
+Clean snp.csv dataset.
+ 
+```{r}
+snp_df = 
+  read_csv("data/snp.csv") |>
+  janitor::clean_names() |>
+  mutate(date = as.Date(date, format = "%m/%d/%y")) |>
+  separate(date, into = c("year", "month", "day"), sep = "-", convert = TRUE) |>
+  mutate(
+    month = case_match(
+      month,
+      1 ~ "Jan",
+      2 ~ "Feb", 
+      3 ~ "Mar", 
+      4 ~ "Apr", 
+      5 ~ "May", 
+      6 ~ "Jun", 
+      7 ~ "Jul",
+      8 ~ "Aug", 
+      9 ~ "Sep", 
+      10 ~ "Oct", 
+      11 ~ "Nov", 
+      12 ~ "Dec"))
+```
+ 
 
 
 
@@ -60,8 +83,4 @@ unemployment_df =
 ```
 
 
-```{r}
-snp_df = 
-  read_csv("data/snp.csv") |>
-  janitor::clean_names() 
-```
+
