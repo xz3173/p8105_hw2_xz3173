@@ -182,7 +182,7 @@ mci_amyloid.df =
     names_prefix = "time_",
     values_to = "follow_up"
   ) |>
-  filter(follow_up != "NA")
+  rename(id = study_id)
 ```
 
 
@@ -191,4 +191,7 @@ mci_amyloid.df =
 
 Check whether some participants appear in only the baseline or amyloid datasets, and comment on your findings. Combine the demographic and biomarker datasets so that only participants who appear in both datasets are retained, and briefly describe the resulting dataset; export the result as a CSV to your data directory.
 
-
+```{r}
+mci_df =
+  merge(mci_baseline_df, mci_amyloid.df, by = c("id"), all.x = TRUE)
+```
