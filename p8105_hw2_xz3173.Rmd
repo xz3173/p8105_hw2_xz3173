@@ -7,6 +7,7 @@ output: github_document
 
 ```{r setup, include=FALSE}
 library(tidyverse)
+library(readxl)
 ```
 
 # Problem 1
@@ -99,10 +100,68 @@ merged_data =
   merge(pols_month_df, snp_df, by = c("year", "month"), all.x = TRUE)
 
 final_merged_data = 
-  merge(merged_data, unemployment_df, by = c("year", "month"), all = TRUE)
+  merge(merged_data, unemployment_df, by = c("year", "month"), all.x = TRUE)
 ```
 
 
+Write a short paragraph about these datasets. Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).
 
+
+
+
+
+
+
+
+# Problem 2
+
+
+Read and clean the Mr.Trash Wheel sheet:
+
+* Specify the sheet in the file and to omit non-data entries (rows with notes/figures; column containing notes) using arguments in `read_excel`.
+
+```{r}
+trash_wheel_collection_df = 
+  read_excel("data/trash_wheel_collection.xlsx", sheet = "Mr. Trash Wheel", skip = 1) |>
+  janitor::clean_names()
+```
+
+* use reasonable variable names
+
+
+
+
+* omit rows that do not include dumpster-specific data
+
+
+The data include a column for the (approximate) number of homes powered. This calculation is described in the Homes powered note, but not applied to every row in the dataset. Update the data to include a new homes_powered variable based on this calculation.
+
+Use a similar process to import, clean, and organize the data for Professor Trash Wheel and Gwynnda, and combine these with the Mr. Trash Wheel dataset to produce a single tidy dataset. To keep track of which Trash Wheel is which, you may need to add an additional variable to all datasets before combining.
+
+Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in the resulting dataset, and give examples of key variables. For available data, what was the total weight of trash collected by Professor Trash Wheel? What was the total number of cigarette butts collected by Gwynnda in July of 2021?
+
+# Problem 3
+
+Import, clean, and tidy the dataset of baseline demographics. Ensure that sex and APOE4 carrier status are appropriate encoded (i.e. not numeric), and remove any participants who do not meet the stated inclusion criteria (i.e. no MCI at baseline). Discuss important steps in the import process and relevant features of the dataset. How many participants were recruited, and of these how many develop MCI? What is the average baseline age? What proportion of women in the study are APOE4 carriers?
+
+
+```{r}
+mci_baseline_df =
+  read_csv("data/mci_baseline.csv") |>
+  janitor::clean_names()
+```
+
+
+Similarly, import, clean, and tidy the dataset of longitudinally observed biomarker values; comment on the steps on the import process and the features of the dataset.
+
+
+```{r}
+mci_amyloid.df = 
+  read_csv("data/mci_amyloid.csv") |>
+  janitor::clean_names()
+```
+
+
+Check whether some participants appear in only the baseline or amyloid datasets, and comment on your findings. Combine the demographic and biomarker datasets so that only participants who appear in both datasets are retained, and briefly describe the resulting dataset; export the result as a CSV to your data directory.
 
 
