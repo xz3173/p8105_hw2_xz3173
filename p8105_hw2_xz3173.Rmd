@@ -147,8 +147,25 @@ Import, clean, and tidy the dataset of baseline demographics. Ensure that sex an
 
 ```{r}
 mci_baseline_df =
-  read_csv("data/mci_baseline.csv") |>
-  janitor::clean_names()
+  read_csv("data/mci_baseline.csv", skip = 1) |>
+  janitor::clean_names() |>
+  mutate(
+    sex = 
+      case_match(
+        sex,
+        1 ~ "Male",
+        0 ~ "Female"),
+    sex = as.factor(sex)) |>
+  
+  mutate(
+    apoe4 = 
+      case_match(
+        apoe4,
+        1 ~ "carrier",
+        0 ~ "non-carrier"),
+    apoe4 = as.factor(apoe4)) |>
+  
+  filter(age_at_onset != ".")
 ```
 
 
