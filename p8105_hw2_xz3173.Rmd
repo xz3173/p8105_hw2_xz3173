@@ -41,7 +41,7 @@ pols_month_df =
   mutate(
     president = ifelse(grepl("1", prez_dem, ignore.case = TRUE), "dem",
                        ifelse(grepl("1", prez_gop, ignore.case = TRUE), "gop", NA))) |>
-  select(-prez_dem, -prez_gop, -day)
+  select(-prez_dem, -prez_gop, -day, -gov_gop, -sen_gop, -rep_gop, -gov_dem, -sen_dem, -rep_dem)
 ```
  
  
@@ -67,10 +67,12 @@ snp_df =
       9 ~ "Sep", 
       10 ~ "Oct", 
       11 ~ "Nov", 
-      12 ~ "Dec"))
+      12 ~ "Dec")) |>
+  select(-day)
 ```
  
 
+Tidy the unemployment data
 
 
 
@@ -79,8 +81,28 @@ snp_df =
 ```{r}
 unemployment_df = 
   read_csv("data/unemployment.csv") |>
-  janitor::clean_names() 
+  janitor::clean_names() |>
+  pivot_longer(
+    jan:dec,
+    names_to = "month",
+    values_to = "percent_of_unemployment"
+  ) |>
+  mutate(
+    month = str_to_title(month)
+  )
 ```
+
+Merge the datasets.
+
+```{r}
+merged_data =
+  merge(pols_month_df, snp_df, by = c("year", "month"), all.x = TRUE)
+
+final_merged_data = 
+  merge(merged_data, unemployment_df, by = c("year", "month"), all = TRUE)
+```
+
+
 
 
 
