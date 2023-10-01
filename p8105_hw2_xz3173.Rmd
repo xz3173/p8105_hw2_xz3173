@@ -105,24 +105,23 @@ Let's talk about the 538 datasets. The `pols` data has `r nrow(pols)` observatio
 Read and clean the Mr.Trash Wheel sheet:
 
 * Specify the sheet in the file and to omit non-data entries (rows with notes/figures; column containing notes) using arguments in `read_excel`.
+* use reasonable variable names
+* omit rows that do not include dumpster-specific data
+
+The data include a column for the (approximate) number of homes powered. This calculation is described in the Homes powered note, but not applied to every row in the dataset. Update the data to include a new homes_powered variable based on this calculation.
+
+
+* Homes Powered - Each ton of trash equates to on average 500 kilowatts of electricity.  An average household will use 30 kilowatts per day.
 
 ```{r}
 trash_wheel_collection_df = 
-  read_excel("data/trash_wheel_collection.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N550") |>
-  janitor::clean_names()
+  read_excel("data/trash_wheel_collection.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N549") |>
+   mutate(
+    homes_powered = (`Weight (tons)`) * 500 / 30)
 ```
 
-* use reasonable variable names
 
 
-
-
-* omit rows that do not include dumpster-specific data
-
-
-
-
-The data include a column for the (approximate) number of homes powered. This calculation is described in the Homes powered note, but not applied to every row in the dataset. Update the data to include a new homes_powered variable based on this calculation.
 
 
 
