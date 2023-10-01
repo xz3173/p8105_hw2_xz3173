@@ -116,25 +116,44 @@ The data include a column for the (approximate) number of homes powered. This ca
 ```{r}
 mr_trash_wheel_df = 
   read_excel("data/trash_wheel_collection.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N549") |>
-   mutate(
-    homes_powered = (`Weight (tons)`) * 500 / 30)
+  mutate(
+    homes_powered = (`Weight (tons)`) * 500 / 30,
+    Mr_Dumpster = Dumpster) |>
+  select(Mr_Dumpster, Year, Month, everything(), -Dumpster, -"Homes Powered*")
 ```
 
 
-Use a similar process to import, clean, and organize the data for Professor Trash Wheel and Gwynnda, and combine these with the Mr. Trash Wheel dataset to produce a single tidy dataset. To keep track of which Trash Wheel is which, you may need to add an additional variable to all datasets before combining.
+Use a similar process to import, clean, and organize the data for Professor Trash Wheel and Gwynnda, and combine these with the Mr. Trash Wheel dataset to produce a single tidy dataset. 
 
 ```{r}
 professor_trash_wheel_df = 
   read_excel("data/trash_wheel_collection.xlsx", sheet = "Professor Trash Wheel", range = "A2:M96") |>
    mutate(
-    homes_powered = (`Weight (tons)`) * 500 / 30)
+    homes_powered = (`Weight (tons)`) * 500 / 30,
+    Year = as.character(Year),
+    Professor_Dumpster = Dumpster) |>
+  select(Professor_Dumpster, Year, Month, everything(), -Dumpster, -"Homes Powered*")
 ```
 
 ```{r}
 gwynnda_trash_wheel_df =
   read_excel("data/trash_wheel_collection.xlsx", sheet = "Gwynnda Trash Wheel", range = "A2:K108") |>
    mutate(
-    homes_powered = (`Weight (tons)`) * 500 / 30)
+    homes_powered = (`Weight (tons)`) * 500 / 30,
+    Year = as.character(Year),
+    Gwynnda_Dumpster = Dumpster) |>
+  select(Gwynnda_Dumpster, Year, Month, everything(), -Dumpster, -"Homes Powered*")
+```
+
+
+To keep track of which Trash Wheel is which, you may need to add an additional variable to all datasets before combining.
+
+```{r}
+trash_wheel_collection_df =
+  full_join(mr_trash_wheel_df, professor_trash_wheel_df) |>
+  full_join(x = _, y = gwynnda_trash_wheel_df) 
+
+str(trash_wheel_collection_df)
 ```
 
 Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in the resulting dataset, and give examples of key variables. For available data, what was the total weight of trash collected by Professor Trash Wheel? What was the total number of cigarette butts collected by Gwynnda in July of 2021?
