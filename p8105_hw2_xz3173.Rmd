@@ -116,10 +116,10 @@ The data include a column for the (approximate) number of homes powered. This ca
 ```{r}
 mr_trash_wheel_df = 
   read_excel("data/trash_wheel_collection.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N549") |>
-  mutate(
-    homes_powered = (`Weight (tons)`) * 500 / 30,
-    Mr_Dumpster = Dumpster) |>
-  select(Mr_Dumpster, Year, Month, everything(), -Dumpster, -"Homes Powered*")
+  janitor::clean_names(case = "snake") |>
+   mutate(
+    homes_powered = (weight_tons) * 500 / 30,
+    trash_wheel = "mr")
 ```
 
 
@@ -128,21 +128,21 @@ Use a similar process to import, clean, and organize the data for Professor Tras
 ```{r}
 professor_trash_wheel_df = 
   read_excel("data/trash_wheel_collection.xlsx", sheet = "Professor Trash Wheel", range = "A2:M96") |>
+  janitor::clean_names(case = "snake") |>
    mutate(
-    homes_powered = (`Weight (tons)`) * 500 / 30,
-    Year = as.character(Year),
-    Professor_Dumpster = Dumpster) |>
-  select(Professor_Dumpster, Year, Month, everything(), -Dumpster, -"Homes Powered*")
+    homes_powered = (weight_tons) * 500 / 30,
+    year = as.character(year),
+    trash_wheel = "professor")
 ```
 
 ```{r}
 gwynnda_trash_wheel_df =
   read_excel("data/trash_wheel_collection.xlsx", sheet = "Gwynnda Trash Wheel", range = "A2:K108") |>
+  janitor::clean_names() |>
    mutate(
-    homes_powered = (`Weight (tons)`) * 500 / 30,
-    Year = as.character(Year),
-    Gwynnda_Dumpster = Dumpster) |>
-  select(Gwynnda_Dumpster, Year, Month, everything(), -Dumpster, -"Homes Powered*")
+    homes_powered = (weight_tons) * 500 / 30,
+    year = as.character(year),
+    trash_wheel = "gwynnda")
 ```
 
 
@@ -150,8 +150,7 @@ To keep track of which Trash Wheel is which, you may need to add an additional v
 
 ```{r}
 trash_wheel_collection_df =
-  full_join(mr_trash_wheel_df, professor_trash_wheel_df) |>
-  full_join(x = _, y = gwynnda_trash_wheel_df) 
+  bind_rows(mr_trash_wheel_df, professor_trash_wheel_df, gwynnda_trash_wheel_df)
 
 str(trash_wheel_collection_df)
 ```
