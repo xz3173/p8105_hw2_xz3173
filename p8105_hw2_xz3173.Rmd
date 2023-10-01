@@ -5,106 +5,92 @@ date: "2023-09-27"
 output: github_document
 ---
 
+
+
+
+
+
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(readxl)
 ```
 
-# Problem 1
 
 
-Import the pols-month.csv, unemployment.csv, and snp.csv.
 
 
-```{r}
-pols_month_df = 
-  read_csv("data/pols-month.csv") |>
-  janitor::clean_names() |>
-  separate(mon, into = c("year", "month", "day"), sep = "-", convert = TRUE) |>
-  
-  mutate(
-    month = case_match(
-      month,
-      1 ~ "Jan",
-      2 ~ "Feb", 
-      3 ~ "Mar", 
-      4 ~ "Apr", 
-      5 ~ "May", 
-      6 ~ "Jun", 
-      7 ~ "Jul",
-      8 ~ "Aug", 
-      9 ~ "Sep", 
-      10 ~ "Oct", 
-      11 ~ "Nov", 
-      12 ~ "Dec")
-  ) |>
-  
-  mutate(
-    president = ifelse(grepl("1", prez_dem, ignore.case = TRUE), "dem",
-                       ifelse(grepl("1", prez_gop, ignore.case = TRUE), "gop", NA))) |>
-  select(-prez_dem, -prez_gop, -day, -gov_gop, -sen_gop, -rep_gop, -gov_dem, -sen_dem, -rep_dem)
-```
- 
- 
-Clean snp.csv dataset.
- 
-```{r}
-snp_df = 
-  read_csv("data/snp.csv") |>
-  janitor::clean_names() |>
-  mutate(date = as.Date(date, format = "%m/%d/%y")) |>
-  separate(date, into = c("year", "month", "day"), sep = "-", convert = TRUE) |>
-  mutate(
-    month = case_match(
-      month,
-      1 ~ "Jan",
-      2 ~ "Feb", 
-      3 ~ "Mar", 
-      4 ~ "Apr", 
-      5 ~ "May", 
-      6 ~ "Jun", 
-      7 ~ "Jul",
-      8 ~ "Aug", 
-      9 ~ "Sep", 
-      10 ~ "Oct", 
-      11 ~ "Nov", 
-      12 ~ "Dec")) |>
-  select(-day)
-```
- 
+# Problem 1 Solutions
 
-Tidy the unemployment data
-
-
+We clean the 538 `pols` data, which provides information on the number of national politicians who are democratic or republican at any given time. There are some values for which `prez_gop` is `2` -- these are months in which Ford became President following Nixon's resignation. In the new `president` variable created as part of our data cleaning, we code these as `gop` (same as values when `prez_gop` is `1`).
 
 
 
 ```{r}
-unemployment_df = 
-  read_csv("data/unemployment.csv") |>
-  janitor::clean_names() |>
-  pivot_longer(
-    jan:dec,
-    names_to = "month",
-    values_to = "percent_of_unemployment"
-  ) |>
-  mutate(
-    month = str_to_title(month)
+month_df = 
+  tibble(
+    month_num = 1:12,
+    month_abb = month.abb,
+    month = month.name
   )
 ```
 
-Merge the datasets.
+
+
 
 ```{r}
-merged_data =
-  merge(pols_month_df, snp_df, by = c("year", "month"), all.x = TRUE)
+pols = 
+  read_csv("data/pols-month.csv") |>
+  separate(mon, into = c("year", "month_num", "day"), convert = TRUE) |>
+  mutate(
+    president = recode(prez_gop, "0" = "dem", "1" = "gop", "2" = "gop"))|>
+  left_join(x = _, y = month_df) |>
+  select(year, month, everything(), -day, -starts_with("prez"))
+```
+ 
+We also clean the 538 `snp` data, which contains information related to Standard & Poor’s stock market index.
+ 
+```{r}
+snp = 
+  read_csv("data/snp.csv") |>
+  separate(date, into = c("month", "day", "year"), convert = TRUE) |>
+  arrange(year, month) |>
+  mutate(month = month.name[month]) |>
+  select(year, month, close)
+```
+ 
+Finally, we tidy the `unemployment` data so that it can be merged with the `pols` and `snp` datasets.
 
-final_merged_data = 
-  merge(merged_data, unemployment_df, by = c("year", "month"), all.x = TRUE)
+
+
+
+```{r}
+unemployment = 
+  read_csv("data/unemployment.csv") |>
+  rename(year = Year) |>
+  pivot_longer(
+    Jan:Dec,
+    names_to = "month_abb",
+    values_to = "unemployment"
+  ) |>
+  left_join(x = _, y = month_df) |>
+  select(year, month, unemployment)
 ```
 
+Now we merge the three datasets!
 
-Write a short paragraph about these datasets. Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).
+```{r}
+data_538 =
+  left_join(pols, snp) |>
+  left_join(x = _, y = unemployment)
+
+str(data_538)
+```
+
+Notice that there are some `NA` values in the `close` and `unemployment` variables, which indicate that the value of these variables is missing at those locations.
+
+Let's talk about the 538 datasets. The `pols` data has `r nrow(pols)` observations and `r ncol(pols)` variables and tells us about the party affiliation distribution (democrat or republican) for governors and senators for a given year from years `r range(pols$year)[1]` to `r range(pols$year)[2]`. It also tells us whether the sitting president was a democrat or republican. The `snp` data has `r nrow(snp)` observations and `r ncol(snp)` variables, ranging from years `r range(snp$year)[1]` to `r range(snp$year)[2]`. The `unemployment` data has `r nrow(unemployment)` observations and `r ncol(unemployment)` variables ranging from years `r range(unemployment$year)[1]` to `r range(unemployment$year)[2]`. In Januarys in or after 1975 in which a democrat was president, the **average unemployment rate was `r filter(data_538, month == "January", year >= 1975, president == "dem") |> pull(unemployment) |> mean() |> round(2)`**.  The average unemployment rate over the same time period in which a republican was president was `r filter(data_538, month == "January", year >= 1975, president == "gop") |> pull(unemployment) |> mean() |> round(2)`.
+
+
 
 
 
@@ -122,7 +108,7 @@ Read and clean the Mr.Trash Wheel sheet:
 
 ```{r}
 trash_wheel_collection_df = 
-  read_excel("data/trash_wheel_collection.xlsx", sheet = "Mr. Trash Wheel", skip = 1) |>
+  read_excel("data/trash_wheel_collection.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N550") |>
   janitor::clean_names()
 ```
 
@@ -134,15 +120,31 @@ trash_wheel_collection_df =
 * omit rows that do not include dumpster-specific data
 
 
+
+
 The data include a column for the (approximate) number of homes powered. This calculation is described in the Homes powered note, but not applied to every row in the dataset. Update the data to include a new homes_powered variable based on this calculation.
+
+
+
 
 Use a similar process to import, clean, and organize the data for Professor Trash Wheel and Gwynnda, and combine these with the Mr. Trash Wheel dataset to produce a single tidy dataset. To keep track of which Trash Wheel is which, you may need to add an additional variable to all datasets before combining.
 
+
+
+
+
 Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in the resulting dataset, and give examples of key variables. For available data, what was the total weight of trash collected by Professor Trash Wheel? What was the total number of cigarette butts collected by Gwynnda in July of 2021?
+
+
+
+
+
 
 # Problem 3
 
-Import, clean, and tidy the dataset of baseline demographics. Ensure that sex and APOE4 carrier status are appropriate encoded (i.e. not numeric), and remove any participants who do not meet the stated inclusion criteria (i.e. no MCI at baseline). Discuss important steps in the import process and relevant features of the dataset. How many participants were recruited, and of these how many develop MCI? What is the average baseline age? What proportion of women in the study are APOE4 carriers?
+Import, clean, and tidy the dataset of baseline demographics. Ensure that sex and APOE4 carrier status are appropriate encoded (i.e. not numeric), and remove any participants who do not meet the stated inclusion criteria (i.e. no MCI at baseline). 
+
+Discuss important steps in the import process and relevant features of the dataset. How many participants were recruited, and of these how many develop MCI? What is the average baseline age? What proportion of women in the study are APOE4 carriers?
 
 
 ```{r}
@@ -190,6 +192,9 @@ mci_amyloid.df =
 
 
 Check whether some participants appear in only the baseline or amyloid datasets, and comment on your findings. Combine the demographic and biomarker datasets so that only participants who appear in both datasets are retained, and briefly describe the resulting dataset; export the result as a CSV to your data directory.
+
+
+
 
 ```{r}
 mci_df =
