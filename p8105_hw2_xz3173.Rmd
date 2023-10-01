@@ -170,26 +170,27 @@ Import, clean, and tidy the dataset of baseline demographics. Ensure that sex an
 Discuss important steps in the import process and relevant features of the dataset. How many participants were recruited, and of these how many develop MCI? What is the average baseline age? What proportion of women in the study are APOE4 carriers?
 
 
+
 ```{r}
 mci_baseline_df =
   read_csv("data/mci_baseline.csv", skip = 1) |>
   janitor::clean_names() |>
   mutate(
-    sex = 
+    sex =
       case_match(
         sex,
         1 ~ "Male",
         0 ~ "Female"),
-    sex = as.factor(sex)) |>
+    sex = as.character(sex)) |>
   
   mutate(
-    apoe4 = 
+    apoe4 =
       case_match(
         apoe4,
         1 ~ "carrier",
         0 ~ "non-carrier"),
-    apoe4 = as.factor(apoe4)) |>
-  
+    apoe4 = as.character(apoe4)) |>
+
   filter(age_at_onset != ".")
 ```
 
@@ -207,7 +208,7 @@ mci_amyloid.df =
     names_prefix = "time_",
     values_to = "follow_up"
   ) |>
-  rename(id = study_id)
+  rename(id = study_id) 
 ```
 
 
@@ -218,8 +219,15 @@ Check whether some participants appear in only the baseline or amyloid datasets,
 
 
 
-
 ```{r}
 mci_df =
-  merge(mci_baseline_df, mci_amyloid.df, by = c("id"), all.x = TRUE)
+  left_join(mci_baseline_df, mci_amyloid.df) |>
+  filter(baseline != "NA", follow_up != "NA")
+
+str(mci_df)
+```
+
+
+```{r}
+write_csv(mci_df, "data/mci_df.csv")
 ```
