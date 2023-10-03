@@ -147,11 +147,11 @@ trash_wheel_collection_df =
 str(trash_wheel_collection_df)
 ```
 
-The `mr_trash_wheel_df` data has `nrow(mr_trash_wheel_df)` observations and `ncol(mr_trash_wheel_df)` variables and tells us about the information on the dumpster number, date of collection, amount of total litter and litter type for a given year of `range(pull(mr_trash_wheel_df, year))`. The total weight of trash collected by Mr. Trash Wheel is `sum(pull(mr_trash_wheel_df, weight_tons))`. The total number of cigarette butts collected by Mr.Trash Wheel is `sum(pull(mr_trash_wheel_df, cigarette_butts))`. The total homes powered is `sum(pull(mr_trash_wheel_df, homes_powered))`. The average homes powered is `mean(pull(mr_trash_wheel_df, homes_powered))`. 
+The `mr_trash_wheel_df` data has `r nrow(mr_trash_wheel_df)` observations and `r ncol(mr_trash_wheel_df)` variables and tells us about the information on the dumpster number, date of collection, amount of total litter and litter type for a given year during `r range(pull(mr_trash_wheel_df, year))`. The total weight of trash collected by Mr. Trash Wheel is `r sum(pull(mr_trash_wheel_df, weight_tons))` tons. The total number of cigarette butts collected by Mr.Trash Wheel is `r sum(pull(mr_trash_wheel_df, cigarette_butts))`. The total homes powered is `r sum(pull(mr_trash_wheel_df, homes_powered))` kilowatts. The average homes powered is `r mean(pull(mr_trash_wheel_df, homes_powered))` kilowatts. 
 
-The `professor_trash_wheel_df` data has `nrow(professor_trash_wheel_df)` observations and `ncol(professor_trash_wheel_df)` variables and tells us about the information on the dumpster number, date of collection, amount of total litter and litter type for a given year of `range(pull(professor_trash_wheel_df, year))`. The total weight of trash collected by Professor Trash Wheel is `sum(pull(professor_trash_wheel_df, weight_tons))`. The total number of cigarette butts collected by Professor Trash Wheel is `sum(pull(professor_trash_wheel_df, cigarette_butts))`. The total homes powered is `sum(pull(professor_trash_wheel_df, homes_powered))`. The average homes powered is `mean(pull(professor_trash_wheel_df, homes_powered))`. 
+The `professor_trash_wheel_df` data has `r nrow(professor_trash_wheel_df)` observations and `r ncol(professor_trash_wheel_df)` variables and tells us about the information on the dumpster number, date of collection, amount of total litter and litter type for a given year during `r range(pull(professor_trash_wheel_df, year))`. The total weight of trash collected by Professor Trash Wheel is `r sum(pull(professor_trash_wheel_df, weight_tons))` tons. The total number of cigarette butts collected by Professor Trash Wheel is `r sum(pull(professor_trash_wheel_df, cigarette_butts))`. The total homes powered is `r sum(pull(professor_trash_wheel_df, homes_powered))` kilowatts. The average homes powered is `r mean(pull(professor_trash_wheel_df, homes_powered))` kilowatts. 
 
-The `gwynnda_trash_wheel_df` data has `nrow(gwynnda_trash_wheel_df)` observations and `ncol(gwynnda_trash_wheel_df)` variables and tells us about the information on the dumpster number, date of collection, amount of total litter and litter type for a given year of `range(pull(gwynnda_trash_wheel_df, year))`. The total weight of trash collected by Gwynnda Trash Wheel is `sum(pull(gwynnda_trash_wheel_df, weight_tons))`. The total number of cigarette butts collected by Gwynnda Trash Wheel is `sum(pull(gwynnda_trash_wheel_df, cigarette_butts))`. The total homes powered is `sum(pull(gwynnda_trash_wheel_df, homes_powered))`. The average homes powered is `mean(pull(gwynnda_trash_wheel_df, homes_powered))`. The total number of cigarette butts collected by Gwynnda in July of 2021  is `filter(gwynnda_trash_wheel_df, month == "July", year == 2021) |> pull(cigarette_butts) |> sum()`.
+The `gwynnda_trash_wheel_df` data has `r nrow(gwynnda_trash_wheel_df)` observations and `r ncol(gwynnda_trash_wheel_df)` variables and tells us about the information on the dumpster number, date of collection, amount of total litter and litter type for a given year during `r range(pull(gwynnda_trash_wheel_df, year))`. The total weight of trash collected by Gwynnda Trash Wheel is `r sum(pull(gwynnda_trash_wheel_df, weight_tons))` tons. The total number of cigarette butts collected by Gwynnda Trash Wheel is `r sum(pull(gwynnda_trash_wheel_df, cigarette_butts))`. The total homes powered is `r sum(pull(gwynnda_trash_wheel_df, homes_powered))` kilowatts. The average homes powered is `r mean(pull(gwynnda_trash_wheel_df, homes_powered))` kilowatts. The total number of cigarette butts collected by Gwynnda in July of 2021  is `r filter(gwynnda_trash_wheel_df, month == "July", year == 2021) |> pull(cigarette_butts) |> sum()`.
 
 
 
@@ -159,7 +159,7 @@ The `gwynnda_trash_wheel_df` data has `nrow(gwynnda_trash_wheel_df)` observation
 
 Import, clean, and tidy the dataset of baseline demographics. 
 
-remove any participants who do not meet the stated inclusion criteria (i.e. no MCI at baseline)
+
 
 Discuss important steps in the import process and relevant features of the dataset.
 
@@ -167,14 +167,12 @@ Discuss important steps in the import process and relevant features of the datas
 mci_baseline_df =
   
   # import dataset
-  
   read_csv("data/mci_baseline.csv", skip = 1) |>
   
   # clean names
   janitor::clean_names() |>
   
-  # Ensure that sex and APOE4 variables are appropriate encoded
-  
+  # ensure that sex and APOE4 variables are appropriate encoded
   mutate(
     sex =
       case_match(
@@ -190,34 +188,28 @@ mci_baseline_df =
         0 ~ "non-carrier"),
     apoe4 = as.character(apoe4)) |>
   
-  filter(age_at_onset == "." | current_age < age_at_onset)
+  # remove any participants who do not meet the stated inclusion criteria (i.e. no MCI at baseline)
+  filter(age_at_onset == "." | current_age < age_at_onset) |>
+  
+  mutate(
+    age_at_onset = ifelse(age_at_onset == ".", NA, age_at_onset),
+    age_at_onset = as.numeric(age_at_onset))
 
-```
-
-```{r}
 # participants were recruited
-
 nrow(mci_baseline_df)
   
 # participants developed MCI
-
-mci_baseline_df$age_at_onset[mci_baseline_df$age_at_onset == "."] = NA
 sum(!is.na(pull(mci_baseline_df, age_at_onset))) 
 
-
-
 # the average baseline age
-
 mean(pull(mci_baseline_df, current_age))
-```
-  
 
-```{r}
 # proportion of women in the study are APOE4 carriers
+women = mci_baseline_df |>
+  filter(sex == "Female") 
 
-women = mci_baseline_df[mci_baseline_df$sex == "Female", ] 
-
-apoe4_women = women[women$apoe4 == "carrier", ]
+apoe4_women = women |>
+  filter(apoe4 == "carrier")
 
 proportion_apoe4_women = nrow(apoe4_women) / nrow(women)
 
@@ -232,60 +224,61 @@ Similarly, import, clean, and tidy the dataset of longitudinally observed biomar
 
 ```{r}
 mci_amyloid_df = 
+  
+  # import dataset
   read_csv("data/mci_amyloid.csv", skip = 1) |>
+  
+  # clean names
   janitor::clean_names() |>
+  
+  # make a clean, and tidy datset of longitudinally observed biomarker values
   pivot_longer(
     time_2: time_8,
     names_to = "time_in_years",
     names_prefix = "time_",
     values_to = "follow_up") |>
   rename(id = study_id)
-  
-  
 ```
 
 
 
-
-Check whether some participants appear in only the baseline or amyloid datasets, and comment on your findings. 
-
 ```{r}
+# participants appear in only the baseline dataset
 baseline = mci_baseline_df |>
   anti_join(mci_amyloid_df, by = "id")
-
-baseline
 
 nrow(baseline)
 ```
 
 
 ```{r}
+# participants appear in only the amyloid dataset
 amyloid = mci_amyloid_df |>
   anti_join(mci_baseline_df, by = "id")
-
-amyloid
 
 nrow(amyloid)
 ```
 
 
-Combine the demographic and biomarker datasets so that only participants who appear in both datasets are retained, 
-
-and briefly describe the resulting dataset; 
-
-
-
 
 ```{r}
+# combine the demographic and biomarker datasets that only participants who appear in both datasets are retained
 mci_df =
   inner_join(mci_baseline_df, mci_amyloid_df, by = "id") 
-  
 
 str(mci_df)
+
 ```
 
-filter(baseline != "NA", follow_up != "NA", age_at_onset != "NA")
+
+Briefly describe the resulting dataset.
+
+
+The `mci_df` dataset combines the `mci_baeline_df` and `mci_amyloid_df` datasets. The `mci_df` data has `r nrow(mci_df)` observations and `r ncol(mci_df)` variables and tells us about the partcipants who attend both datasets with the information on the basic demographic information measured at the study baseline, the the development of MCI at the baseline age and the age at onset, and the APOE4 carrier, as well as the biomarker amyloid value in a set of follow up years.
+
+
 
 ```{r}
+# export the result as a CSV
 write_csv(mci_df, "data/mci_df.csv")
 ```
