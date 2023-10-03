@@ -101,17 +101,7 @@ Let's talk about the 538 datasets. The `pols` data has `r nrow(pols)` observatio
 
 # Problem 2
 
-
-Read and clean the Mr.Trash Wheel sheet:
-
-* Specify the sheet in the file and to omit non-data entries (rows with notes/figures; column containing notes) using arguments in `read_excel`.
-* use reasonable variable names
-* omit rows that do not include dumpster-specific data
-
-The data include a column for the (approximate) number of homes powered. This calculation is described in the Homes powered note, but not applied to every row in the dataset. Update the data to include a new homes_powered variable based on this calculation.
-
-
-* Homes Powered - Each ton of trash equates to on average 500 kilowatts of electricity.  An average household will use 30 kilowatts per day.
+Read and clean the Mr.Trash Wheel sheet.
 
 ```{r}
 mr_trash_wheel_df = 
@@ -122,8 +112,7 @@ mr_trash_wheel_df =
     trash_wheel = "mr")
 ```
 
-
-Use a similar process to import, clean, and organize the data for Professor Trash Wheel and Gwynnda, and combine these with the Mr. Trash Wheel dataset to produce a single tidy dataset. 
+Read and clean the Professor Trash Wheel sheet.
 
 ```{r}
 professor_trash_wheel_df = 
@@ -135,6 +124,8 @@ professor_trash_wheel_df =
     trash_wheel = "professor")
 ```
 
+Read and clean the Gwynnda Trash Wheel sheet.
+
 ```{r}
 gwynnda_trash_wheel_df =
   read_excel("data/trash_wheel_collection.xlsx", sheet = "Gwynnda Trash Wheel", range = "A2:K108") |>
@@ -145,8 +136,7 @@ gwynnda_trash_wheel_df =
     trash_wheel = "gwynnda")
 ```
 
-
-To keep track of which Trash Wheel is which, you may need to add an additional variable to all datasets before combining.
+Combine datasets. 
 
 ```{r}
 trash_wheel_collection_df =
@@ -155,7 +145,12 @@ trash_wheel_collection_df =
 str(trash_wheel_collection_df)
 ```
 
-Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in the resulting dataset, and give examples of key variables. For available data, what was the total weight of trash collected by Professor Trash Wheel? What was the total number of cigarette butts collected by Gwynnda in July of 2021?
+The `mr_trash_wheel_df` data has `nrow(mr_trash_wheel_df)` observations and `ncol(mr_trash_wheel_df)` variables and tells us about the information on the dumpster number, date of collection, amount of total litter and litter type for a given year of `range(pull(mr_trash_wheel_df, year))`. The total weight of trash collected by Mr. Trash Wheel is `sum(pull(mr_trash_wheel_df, weight_tons))`. The total number of cigarette butts collected by Mr.Trash Wheel is `sum(pull(mr_trash_wheel_df, cigarette_butts))`. The total homes powered is `sum(pull(mr_trash_wheel_df, homes_powered))`. The average homes powered is `mean(pull(mr_trash_wheel_df, homes_powered))`. 
+
+The `professor_trash_wheel_df` data has `nrow(professor_trash_wheel_df)` observations and `ncol(professor_trash_wheel_df)` variables and tells us about the information on the dumpster number, date of collection, amount of total litter and litter type for a given year of `range(pull(professor_trash_wheel_df, year))`. The total weight of trash collected by Professor Trash Wheel is `sum(pull(professor_trash_wheel_df, weight_tons))`. The total number of cigarette butts collected by Professor Trash Wheel is `sum(pull(professor_trash_wheel_df, cigarette_butts))`. The total homes powered is `sum(pull(professor_trash_wheel_df, homes_powered))`. The average homes powered is `mean(pull(professor_trash_wheel_df, homes_powered))`. 
+
+The `gwynnda_trash_wheel_df` data has `nrow(gwynnda_trash_wheel_df)` observations and `ncol(gwynnda_trash_wheel_df)` variables and tells us about the information on the dumpster number, date of collection, amount of total litter and litter type for a given year of `range(pull(gwynnda_trash_wheel_df, year))`. The total weight of trash collected by Gwynnda Trash Wheel is `sum(pull(gwynnda_trash_wheel_df, weight_tons))`. The total number of cigarette butts collected by Gwynnda Trash Wheel is `sum(pull(gwynnda_trash_wheel_df, cigarette_butts))`. The total homes powered is `sum(pull(gwynnda_trash_wheel_df, homes_powered))`. The average homes powered is `mean(pull(gwynnda_trash_wheel_df, homes_powered))`. The total number of cigarette butts collected by Gwynnda in July of 2021  is `filter(gwynnda_trash_wheel_df, month == "July", year == 2021) |> pull(cigarette_butts) |> sum()`.
+
 
 
 
