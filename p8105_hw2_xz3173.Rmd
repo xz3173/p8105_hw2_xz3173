@@ -51,10 +51,12 @@ We also clean the 538 `snp` data, which contains information related to Standard
  
 ```{r}
 snp = 
-  read_csv("data/snp.csv") |>
-  separate(date, into = c("month", "day", "year"), convert = TRUE) |>
-  arrange(year, month) |>
-  mutate(month = month.name[month]) |>
+  read_csv("data/snp.csv",
+           col_types = cols(date = col_date(format = "%m%d%y"))) |>
+  separate(date, into = c("year", "month_num", "day"), convert = TRUE) |>
+  mutate(
+    year = if_else(year > 2023, year - 100, year)) |>
+  left_join(x = _, y = month_df) |>
   select(year, month, close)
 ```
  
@@ -105,7 +107,7 @@ Read and clean the Mr.Trash Wheel sheet.
 
 ```{r}
 mr_trash_wheel_df = 
-  read_excel("data/trash_wheel_collection.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N549") |>
+  read_excel("data/trash_wheel_collection.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N586") |>
   janitor::clean_names(case = "snake") |>
    mutate(
     homes_powered = (weight_tons) * 500 / 30,
@@ -116,7 +118,7 @@ Read and clean the Professor Trash Wheel sheet.
 
 ```{r}
 professor_trash_wheel_df = 
-  read_excel("data/trash_wheel_collection.xlsx", sheet = "Professor Trash Wheel", range = "A2:M96") |>
+  read_excel("data/trash_wheel_collection.xlsx", sheet = "Professor Trash Wheel", range = "A2:M108") |>
   janitor::clean_names(case = "snake") |>
    mutate(
     homes_powered = (weight_tons) * 500 / 30,
@@ -128,7 +130,7 @@ Read and clean the Gwynnda Trash Wheel sheet.
 
 ```{r}
 gwynnda_trash_wheel_df =
-  read_excel("data/trash_wheel_collection.xlsx", sheet = "Gwynnda Trash Wheel", range = "A2:K108") |>
+  read_excel("data/trash_wheel_collection.xlsx", sheet = "Gwynnda Trash Wheel", range = "A2:L157") |>
   janitor::clean_names() |>
    mutate(
     homes_powered = (weight_tons) * 500 / 30,
@@ -186,10 +188,11 @@ mci_baseline_df =
         apoe4,
         1 ~ "carrier",
         0 ~ "non-carrier"),
-    apoe4 = as.character(apoe4))
+    apoe4 = as.character(apoe4)) |>
+  
+  filter(age_at_onset == "." | current_age < age_at_onset)
 
 ```
-
 
 ```{r}
 # participants were recruited
@@ -201,13 +204,13 @@ nrow(mci_baseline_df)
 mci_baseline_df$age_at_onset[mci_baseline_df$age_at_onset == "."] = NA
 sum(!is.na(pull(mci_baseline_df, age_at_onset))) 
 
+
+
 # the average baseline age
 
 mean(pull(mci_baseline_df, current_age))
 ```
-
-
-
+  
 
 ```{r}
 # proportion of women in the study are APOE4 carriers
@@ -228,34 +231,60 @@ Similarly, import, clean, and tidy the dataset of longitudinally observed biomar
 
 
 ```{r}
-mci_amyloid.df = 
+mci_amyloid_df = 
   read_csv("data/mci_amyloid.csv", skip = 1) |>
   janitor::clean_names() |>
   pivot_longer(
-    time_2 : time_8,
-    names_to = "Time (in years)",
+    time_2: time_8,
+    names_to = "time_in_years",
     names_prefix = "time_",
-    values_to = "follow_up"
-  ) |>
-  rename(id = study_id) 
+    values_to = "follow_up") |>
+  rename(id = study_id)
+  
+  
 ```
 
 
 
 
+Check whether some participants appear in only the baseline or amyloid datasets, and comment on your findings. 
 
-Check whether some participants appear in only the baseline or amyloid datasets, and comment on your findings. Combine the demographic and biomarker datasets so that only participants who appear in both datasets are retained, and briefly describe the resulting dataset; export the result as a CSV to your data directory.
+```{r}
+baseline = mci_baseline_df |>
+  anti_join(mci_amyloid_df, by = "id")
+
+baseline
+
+nrow(baseline)
+```
+
+
+```{r}
+amyloid = mci_amyloid_df |>
+  anti_join(mci_baseline_df, by = "id")
+
+amyloid
+
+nrow(amyloid)
+```
+
+
+Combine the demographic and biomarker datasets so that only participants who appear in both datasets are retained, 
+
+and briefly describe the resulting dataset; 
+
 
 
 
 ```{r}
 mci_df =
-  left_join(mci_baseline_df, mci_amyloid.df) |>
-  filter(baseline != "NA", follow_up != "NA")
+  inner_join(mci_baseline_df, mci_amyloid_df, by = "id") 
+  
 
 str(mci_df)
 ```
 
+filter(baseline != "NA", follow_up != "NA", age_at_onset != "NA")
 
 ```{r}
 write_csv(mci_df, "data/mci_df.csv")
