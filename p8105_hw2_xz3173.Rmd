@@ -153,40 +153,75 @@ The `gwynnda_trash_wheel_df` data has `nrow(gwynnda_trash_wheel_df)` observation
 
 
 
-
-
-
-
 # Problem 3
 
-Import, clean, and tidy the dataset of baseline demographics. Ensure that sex and APOE4 carrier status are appropriate encoded (i.e. not numeric), and remove any participants who do not meet the stated inclusion criteria (i.e. no MCI at baseline). 
+Import, clean, and tidy the dataset of baseline demographics. 
 
-Discuss important steps in the import process and relevant features of the dataset. How many participants were recruited, and of these how many develop MCI? What is the average baseline age? What proportion of women in the study are APOE4 carriers?
+remove any participants who do not meet the stated inclusion criteria (i.e. no MCI at baseline)
 
-
+Discuss important steps in the import process and relevant features of the dataset.
 
 ```{r}
 mci_baseline_df =
+  
+  # import dataset
+  
   read_csv("data/mci_baseline.csv", skip = 1) |>
+  
+  # clean names
   janitor::clean_names() |>
+  
+  # Ensure that sex and APOE4 variables are appropriate encoded
+  
   mutate(
     sex =
       case_match(
         sex,
         1 ~ "Male",
         0 ~ "Female"),
-    sex = as.character(sex)) |>
-  
-  mutate(
+    sex = as.character(sex),
+    
     apoe4 =
       case_match(
         apoe4,
         1 ~ "carrier",
         0 ~ "non-carrier"),
-    apoe4 = as.character(apoe4)) |>
+    apoe4 = as.character(apoe4))
 
-  filter(age_at_onset != ".")
 ```
+
+
+```{r}
+# participants were recruited
+
+nrow(mci_baseline_df)
+  
+# participants developed MCI
+
+mci_baseline_df$age_at_onset[mci_baseline_df$age_at_onset == "."] = NA
+sum(!is.na(pull(mci_baseline_df, age_at_onset))) 
+
+# the average baseline age
+
+mean(pull(mci_baseline_df, current_age))
+```
+
+
+
+
+```{r}
+# proportion of women in the study are APOE4 carriers
+
+women = mci_baseline_df[mci_baseline_df$sex == "Female", ] 
+
+apoe4_women = women[women$apoe4 == "carrier", ]
+
+proportion_apoe4_women = nrow(apoe4_women) / nrow(women)
+
+proportion_apoe4_women
+```
+
+
 
 
 Similarly, import, clean, and tidy the dataset of longitudinally observed biomarker values; comment on the steps on the import process and the features of the dataset.
