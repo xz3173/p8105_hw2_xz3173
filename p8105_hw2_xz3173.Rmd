@@ -232,9 +232,9 @@ mci_amyloid_df =
   # clean names
   janitor::clean_names() |>
   
-  # make a clean, and tidy datset of longitudinally observed biomarker values
+  # make a clean, and tidy dataset of longitudinally observed biomarker values
   pivot_longer(
-    time_2: time_8,
+    baseline: time_8,
     names_to = "time_in_years",
     names_prefix = "time_",
     values_to = "follow_up") |>
@@ -269,12 +269,10 @@ There are `r nrow(baseline) ` participants appear in only the baseline dataset. 
 # combine the demographic and biomarker datasets that only participants who appear in both datasets are retained
 mci_df =
   inner_join(mci_baseline_df, mci_amyloid_df, by = "id") 
-
+  
 str(mci_df)
 
 ```
-
-
 
 
 
