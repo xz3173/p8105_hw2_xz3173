@@ -274,9 +274,13 @@ str(mci_df)
 
 ```
 
+```{r}
+unique_participants = unique(pull(mci_df,id))
+num_unique_participants_in_both = length(unique_participants)
+print(num_unique_participants_in_both)
+```
 
-
-The `mci_df` dataset combines the `mci_baeline_df` and `mci_amyloid_df` datasets, has `r nrow(mci_df)` observations and `r ncol(mci_df)` variables, and tells us about the participants who attend both datasets. The columns of the `mci_df` dataset would combine both the demographic and biomarker information columns with the same variables names. The rows of the `mci_df` dataset is less than the number of rows in the two original datasets, because the participants only appear once.
+The `mci_df` dataset combines the `mci_baeline_df` and `mci_amyloid_df` datasets, has `r nrow(mci_df)` observations and `r ncol(mci_df)` variables, and tells us about total of `r num_unique_participants_in_both` participants who attend both datasets. The columns of the `mci_df` dataset would combine both the demographic and biomarker information columns with the same variables names. The rows of the `mci_df` dataset is less than the number of rows in the two original datasets, because the participants only appear once.
 
 
 ```{r}
