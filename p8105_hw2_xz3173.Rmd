@@ -5,25 +5,14 @@ date: "2023-09-27"
 output: github_document
 ---
 
-
-
-
-
-
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(readxl)
 ```
 
-
-
-
-
 # Problem 1 Solutions
 
 We clean the 538 `pols` data, which provides information on the number of national politicians who are democratic or republican at any given time. There are some values for which `prez_gop` is `2` -- these are months in which Ford became President following Nixon's resignation. In the new `president` variable created as part of our data cleaning, we code these as `gop` (same as values when `prez_gop` is `1`).
-
-
 
 ```{r}
 month_df = 
@@ -34,9 +23,6 @@ month_df =
   )
 ```
 
-
-
-
 ```{r}
 pols = 
   read_csv("data/pols-month.csv") |>
@@ -46,9 +32,9 @@ pols =
   left_join(x = _, y = month_df) |>
   select(year, month, everything(), -day, -starts_with("prez"))
 ```
- 
-We also clean the 538 `snp` data, which contains information related to Standard & Poor’s stock market index.
- 
+
+We also clean the 538 `snp` data, which contains information related to Standard & Poor's stock market index.
+
 ```{r}
 snp = 
   read_csv("data/snp.csv",
@@ -59,11 +45,8 @@ snp =
   left_join(x = _, y = month_df) |>
   select(year, month, close)
 ```
- 
+
 Finally, we tidy the `unemployment` data so that it can be merged with the `pols` and `snp` datasets.
-
-
-
 
 ```{r}
 unemployment = 
@@ -90,16 +73,7 @@ str(data_538)
 
 Notice that there are some `NA` values in the `close` and `unemployment` variables, which indicate that the value of these variables is missing at those locations.
 
-Let's talk about the 538 datasets. The `pols` data has `r nrow(pols)` observations and `r ncol(pols)` variables and tells us about the party affiliation distribution (democrat or republican) for governors and senators for a given year from years `r range(pols$year)[1]` to `r range(pols$year)[2]`. It also tells us whether the sitting president was a democrat or republican. The `snp` data has `r nrow(snp)` observations and `r ncol(snp)` variables, ranging from years `r range(snp$year)[1]` to `r range(snp$year)[2]`. The `unemployment` data has `r nrow(unemployment)` observations and `r ncol(unemployment)` variables ranging from years `r range(unemployment$year)[1]` to `r range(unemployment$year)[2]`. In Januarys in or after 1975 in which a democrat was president, the **average unemployment rate was `r filter(data_538, month == "January", year >= 1975, president == "dem") |> pull(unemployment) |> mean() |> round(2)`**.  The average unemployment rate over the same time period in which a republican was president was `r filter(data_538, month == "January", year >= 1975, president == "gop") |> pull(unemployment) |> mean() |> round(2)`.
-
-
-
-
-
-
-
-
-
+Let's talk about the 538 datasets. The `pols` data has `r nrow(pols)` observations and `r ncol(pols)` variables and tells us about the party affiliation distribution (democrat or republican) for governors and senators for a given year from years `r range(pols$year)[1]` to `r range(pols$year)[2]`. It also tells us whether the sitting president was a democrat or republican. The `snp` data has `r nrow(snp)` observations and `r ncol(snp)` variables, ranging from years `r range(snp$year)[1]` to `r range(snp$year)[2]`. The `unemployment` data has `r nrow(unemployment)` observations and `r ncol(unemployment)` variables ranging from years `r range(unemployment$year)[1]` to `r range(unemployment$year)[2]`. In Januarys in or after 1975 in which a democrat was president, the **average unemployment rate was `r filter(data_538, month == "January", year >= 1975, president == "dem") |> pull(unemployment) |> mean() |> round(2)`**. The average unemployment rate over the same time period in which a republican was president was `r filter(data_538, month == "January", year >= 1975, president == "gop") |> pull(unemployment) |> mean() |> round(2)`.
 
 # Problem 2
 
@@ -114,6 +88,8 @@ mr_trash_wheel_df =
     trash_wheel = "mr")
 ```
 
+The `mr_trash_wheel_df` data has `r nrow(mr_trash_wheel_df)` observations and `r ncol(mr_trash_wheel_df)` variables and tells us about the information on the dumpster number, date of collection, amount of total litter and litter type for a given year during `r range(pull(mr_trash_wheel_df, year))`. The total weight of trash collected by Mr. Trash Wheel is `r sum(pull(mr_trash_wheel_df, weight_tons))` tons. The total number of cigarette butts collected by Mr.Trash Wheel is `r sum(pull(mr_trash_wheel_df, cigarette_butts))`. The total homes powered is `r sum(pull(mr_trash_wheel_df, homes_powered))` kilowatts. The average homes powered is `r mean(pull(mr_trash_wheel_df, homes_powered))` kilowatts.
+
 Read and clean the Professor Trash Wheel sheet.
 
 ```{r}
@@ -125,6 +101,8 @@ professor_trash_wheel_df =
     year = as.character(year),
     trash_wheel = "professor")
 ```
+
+The `professor_trash_wheel_df` data has `r nrow(professor_trash_wheel_df)` observations and `r ncol(professor_trash_wheel_df)` variables and tells us about the information on the dumpster number, date of collection, amount of total litter and litter type for a given year during `r range(pull(professor_trash_wheel_df, year))`. **The total weight of trash collected by Professor Trash Wheel is `r sum(pull(professor_trash_wheel_df, weight_tons))` tons.** The total number of cigarette butts collected by Professor Trash Wheel is `r sum(pull(professor_trash_wheel_df, cigarette_butts))`. The total homes powered is `r sum(pull(professor_trash_wheel_df, homes_powered))` kilowatts. The average homes powered is `r mean(pull(professor_trash_wheel_df, homes_powered))` kilowatts.
 
 Read and clean the Gwynnda Trash Wheel sheet.
 
@@ -138,7 +116,9 @@ gwynnda_trash_wheel_df =
     trash_wheel = "gwynnda")
 ```
 
-Combine datasets. 
+The `gwynnda_trash_wheel_df` data has `r nrow(gwynnda_trash_wheel_df)` observations and `r ncol(gwynnda_trash_wheel_df)` variables and tells us about the information on the dumpster number, date of collection, amount of total litter and litter type for a given year during `r range(pull(gwynnda_trash_wheel_df, year))`. The total weight of trash collected by Gwynnda Trash Wheel is `r sum(pull(gwynnda_trash_wheel_df, weight_tons))` tons. The total number of cigarette butts collected by Gwynnda Trash Wheel is `r sum(pull(gwynnda_trash_wheel_df, cigarette_butts))`. The total homes powered is `r sum(pull(gwynnda_trash_wheel_df, homes_powered))` kilowatts. The average homes powered is `r mean(pull(gwynnda_trash_wheel_df, homes_powered))` kilowatts. **The total number of cigarette butts collected by Gwynnda in July of 2021 is `r filter(gwynnda_trash_wheel_df, month == "July", year == 2021) |> pull(cigarette_butts) |> sum()`.**
+
+Combine datasets.
 
 ```{r}
 trash_wheel_collection_df =
@@ -147,18 +127,13 @@ trash_wheel_collection_df =
 str(trash_wheel_collection_df)
 ```
 
-The `mr_trash_wheel_df` data has `r nrow(mr_trash_wheel_df)` observations and `r ncol(mr_trash_wheel_df)` variables and tells us about the information on the dumpster number, date of collection, amount of total litter and litter type for a given year during `r range(pull(mr_trash_wheel_df, year))`. The total weight of trash collected by Mr. Trash Wheel is `r sum(pull(mr_trash_wheel_df, weight_tons))` tons. The total number of cigarette butts collected by Mr.Trash Wheel is `r sum(pull(mr_trash_wheel_df, cigarette_butts))`. The total homes powered is `r sum(pull(mr_trash_wheel_df, homes_powered))` kilowatts. The average homes powered is `r mean(pull(mr_trash_wheel_df, homes_powered))` kilowatts. 
-
-The `professor_trash_wheel_df` data has `r nrow(professor_trash_wheel_df)` observations and `r ncol(professor_trash_wheel_df)` variables and tells us about the information on the dumpster number, date of collection, amount of total litter and litter type for a given year during `r range(pull(professor_trash_wheel_df, year))`. The total weight of trash collected by Professor Trash Wheel is `r sum(pull(professor_trash_wheel_df, weight_tons))` tons. The total number of cigarette butts collected by Professor Trash Wheel is `r sum(pull(professor_trash_wheel_df, cigarette_butts))`. The total homes powered is `r sum(pull(professor_trash_wheel_df, homes_powered))` kilowatts. The average homes powered is `r mean(pull(professor_trash_wheel_df, homes_powered))` kilowatts. 
-
-The `gwynnda_trash_wheel_df` data has `r nrow(gwynnda_trash_wheel_df)` observations and `r ncol(gwynnda_trash_wheel_df)` variables and tells us about the information on the dumpster number, date of collection, amount of total litter and litter type for a given year during `r range(pull(gwynnda_trash_wheel_df, year))`. The total weight of trash collected by Gwynnda Trash Wheel is `r sum(pull(gwynnda_trash_wheel_df, weight_tons))` tons. The total number of cigarette butts collected by Gwynnda Trash Wheel is `r sum(pull(gwynnda_trash_wheel_df, cigarette_butts))`. The total homes powered is `r sum(pull(gwynnda_trash_wheel_df, homes_powered))` kilowatts. The average homes powered is `r mean(pull(gwynnda_trash_wheel_df, homes_powered))` kilowatts. The total number of cigarette butts collected by Gwynnda in July of 2021  is `r filter(gwynnda_trash_wheel_df, month == "July", year == 2021) |> pull(cigarette_butts) |> sum()`.
+The `trash_wheel_collection df` data has `r nrow(trash_wheel_collection_df)` observations and `r ncol(trash_wheel_collection_df)` variables and tells us about the information on the all three datsets including `mr_trash_wheel_df`, `professor_trash_wheel_df`, `gwynnda_trash_wheel_df`. The total weight of trash collected by three datasets is `r sum(pull(trash_wheel_collection_df, weight_tons))` tons. The total number of cigarette butts collected by three datasets is `r sum(pull(trash_wheel_collection_df, cigarette_butts))`. The total homes powered is `r sum(pull(trash_wheel_collection_df, homes_powered))` kilowatts. The average homes powered is `r mean(pull(trash_wheel_collection_df, homes_powered))` kilowatts. 
 
 
 
 # Problem 3
 
-Import, clean, and tidy the dataset of baseline demographics. 
-
+Import, clean, and tidy the dataset of baseline demographics.
 
 ```{r}
 mci_baseline_df =
@@ -213,15 +188,9 @@ proportion_apoe4_women = nrow(apoe4_women) / nrow(women)
 proportion_apoe4_women
 ```
 
+The `mci_baseline_df` data has `r nrow(mci_baseline_df)` observations and `r ncol(mci_baseline_df)` variables and tells us about the basic demographic information measured at the study baseline and the development of MCI and the age of onset during the follow-up period, as well as the APOE4 carrier. The `mci_baseline_df` dataset has removed the participants who do not meet the stated inclusion criteria. **There are total of `r nrow(mci_baseline_df)` participants were recruited, and of these `r sum(!is.na(pull(mci_baseline_df, age_at_onset)))` participants develop MCI. The average baseline age is `r mean(pull(mci_baseline_df, current_age))` years old. The proportion of women in the study with APOE4 carriers are `r proportion_apoe4_women`.** There are also some `NA` values in the `age_at_onset` variables, which indicate that the participant remains MCI free during the follow-up period.
 
-
-The `mci_baseline_df` data has `r nrow(mci_baseline_df)` observations and `r ncol(mci_baseline_df)` variables and tells us about the basic demographic information measured at the study baseline and the development of MCI and the age of onset during the follow-up period, as well as the APOE4 carrier. The `mci_baseline_df` dataset has removed the participants who do not meet the stated inclusion critieria. There are total of `r nrow(mci_baseline_df)` participants were recruited, and of these `r sum(!is.na(pull(mci_baseline_df, age_at_onset)))` participants develop MCI. The average baseline age is `r mean(pull(mci_baseline_df, current_age))` years old. The proportion of women in the study with APOE4 carriers are `r proportion_apoe4_women`. There are also some `NA` values in the `age_at_onset` variables, which indicate that the participant remains MCI free during the follow-up period.
-
-
-
-
-
-Similarly, import, clean, and tidy the dataset of longitudinally observed biomarker values. 
+Similarly, import, clean, and tidy the dataset of longitudinally observed biomarker values.
 
 ```{r}
 mci_amyloid_df = 
@@ -241,10 +210,7 @@ mci_amyloid_df =
   rename(id = study_id)
 ```
 
-
 The `mci_amyloid_df` data has `r nrow(mci_amyloid_df)` observations and `r ncol(mci_amyloid_df)` variables and tells us about the information since the study baseline to the visit where biomarker Amyloid ratio was measured during a range of 2, 4, 6, 8 years. The tidy dataset has a longitudinally observed biomarker values in one column. Notice that tthere are some `NA` values in the `follow_up` variable, which indicate that the value of these variable is missing at those locations. However, the original csv did not specify the reasons of missing values. It might indicate that the pariticpant remains amyloid free during the follow-up period, or just lose track during the follow-up period.
-
-
 
 ```{r}
 # participants appear in only the baseline dataset
@@ -254,7 +220,6 @@ baseline = mci_baseline_df |>
 nrow(baseline)
 ```
 
-
 ```{r}
 # participants appear in only the amyloid dataset
 amyloid = mci_amyloid_df |>
@@ -263,7 +228,7 @@ amyloid = mci_amyloid_df |>
 nrow(amyloid)
 ```
 
-There are `r nrow(baseline) ` participants appear in only the baseline dataset. There are `r nrow(amyloid)` participants appear in only the amyloid dataset. The number of unique participants in the `mci-amyloid_df` data is high, which may impact the comparability of analyses conducted on these two datasets. These two datasets are collected in an observational study to understand the trajectory of Alzheimer's disease biomarkers. The unique participants that missing from the other study might due to missing data, erros in data collection, or intentionally excluded from this study.
+**There are `r nrow(baseline)` participants appear in only the baseline dataset. There are `r nrow(amyloid)` participants appear in only the amyloid dataset.** The number of unique participants in the `mci-amyloid_df` data is high, which may impact the comparability of analyses conducted on these two datasets. These two datasets are collected in an observational study to understand the trajectory of Alzheimer's disease biomarkers. The unique participants that missing from the other study might due to missing data, errors in data collection, or intentionally excluded from this study.
 
 ```{r}
 # combine the demographic and biomarker datasets that only participants who appear in both datasets are retained
@@ -281,7 +246,6 @@ print(num_unique_participants_in_both)
 ```
 
 The `mci_df` dataset combines the `mci_baeline_df` and `mci_amyloid_df` datasets, has `r nrow(mci_df)` observations and `r ncol(mci_df)` variables, and tells us about total of `r num_unique_participants_in_both` participants who attend both datasets. The columns of the `mci_df` dataset would combine both the demographic and biomarker information columns with the same variables names. The rows of the `mci_df` dataset is less than the number of rows in the two original datasets, because the participants only appear once.
-
 
 ```{r}
 # export the result as a CSV
