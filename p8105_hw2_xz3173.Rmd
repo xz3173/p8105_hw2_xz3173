@@ -233,7 +233,7 @@ num_unique_participants_in_amyloid = length(unique_amyloid)
 print(num_unique_participants_in_amyloid)
 ```
 
-**There are `r nrow(baseline)` participants appear in only the baseline dataset. There are `num_unique_participants_in_amyloid` participants appear in only the amyloid dataset.** The number of unique participants in the `mci-amyloid_df` data is high, which may impact the comparability of analyses conducted on these two datasets. These two datasets are collected in an observational study to understand the trajectory of Alzheimer's disease biomarkers. The unique participants that missing from the other study might due to missing data, errors in data collection, or intentionally excluded from this study.
+**There are `r nrow(baseline)` participants appear in only the baseline dataset. There are `r num_unique_participants_in_amyloid` participants appear in only the amyloid dataset.** The number of unique participants in the `mci-amyloid_df` data is high, which may impact the comparability of analyses conducted on these two datasets. These two datasets are collected in an observational study to understand the trajectory of Alzheimer's disease biomarkers. The unique participants that missing from the other study might due to missing data, errors in data collection, or intentionally excluded from this study.
 
 ```{r}
 # combine the demographic and biomarker datasets that only participants who appear in both datasets are retained
