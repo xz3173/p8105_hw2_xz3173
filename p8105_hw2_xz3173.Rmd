@@ -201,6 +201,7 @@ mci_amyloid_df =
   # clean names
   janitor::clean_names() |>
   
+  
   # make a clean, and tidy dataset of longitudinally observed biomarker values
   pivot_longer(
     baseline: time_8,
@@ -208,9 +209,10 @@ mci_amyloid_df =
     names_prefix = "time_",
     values_to = "follow_up") |>
   rename(id = study_id)
+
 ```
 
-The `mci_amyloid_df` data has `r nrow(mci_amyloid_df)` observations and `r ncol(mci_amyloid_df)` variables and tells us about the information since the study baseline to the visit where biomarker Amyloid ratio was measured during a range of 2, 4, 6, 8 years. The tidy dataset has a longitudinally observed biomarker values in one column. Notice that tthere are some `NA` values in the `follow_up` variable, which indicate that the value of these variable is missing at those locations. However, the original csv did not specify the reasons of missing values. It might indicate that the pariticpant remains amyloid free during the follow-up period, or just lose track during the follow-up period.
+The `mci_amyloid_df` data has `r nrow(mci_amyloid_df)` observations and `r ncol(mci_amyloid_df)` variables and tells us about the information since the study baseline to the visit where biomarker Amyloid ratio was measured during a range of 2, 4, 6, 8 years. The tidy dataset has a longitudinally observed biomarker values in one column. Notice that there are some `NA` values in the `follow_up` variable, which indicate that the value of these variable is missing at those locations. However, the original csv did not specify the reasons of missing values. It might indicate that the paticipant remains amyloid free during the follow-up period, or just lose track during the follow-up period.
 
 ```{r}
 # participants appear in only the baseline dataset
@@ -225,10 +227,13 @@ nrow(baseline)
 amyloid = mci_amyloid_df |>
   anti_join(mci_baseline_df, by = "id")
 
-nrow(amyloid)
+
+unique_amyloid = unique(pull(amyloid,id))
+num_unique_participants_in_amyloid = length(unique_amyloid)
+print(num_unique_participants_in_amyloid)
 ```
 
-**There are `r nrow(baseline)` participants appear in only the baseline dataset. There are `r nrow(amyloid)` participants appear in only the amyloid dataset.** The number of unique participants in the `mci-amyloid_df` data is high, which may impact the comparability of analyses conducted on these two datasets. These two datasets are collected in an observational study to understand the trajectory of Alzheimer's disease biomarkers. The unique participants that missing from the other study might due to missing data, errors in data collection, or intentionally excluded from this study.
+**There are `r nrow(baseline)` participants appear in only the baseline dataset. There are `num_unique_participants_in_amyloid` participants appear in only the amyloid dataset.** The number of unique participants in the `mci-amyloid_df` data is high, which may impact the comparability of analyses conducted on these two datasets. These two datasets are collected in an observational study to understand the trajectory of Alzheimer's disease biomarkers. The unique participants that missing from the other study might due to missing data, errors in data collection, or intentionally excluded from this study.
 
 ```{r}
 # combine the demographic and biomarker datasets that only participants who appear in both datasets are retained
